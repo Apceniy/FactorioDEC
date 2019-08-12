@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Factorio Damage Efficiency Calculator</title>
+	<meta charset="UTF-8">
+<link rel="apple-touch-icon" sizes="120x120" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
+<link rel="manifest" href="icons/site.webmanifest">
+<link rel="mask-icon" href="icons/safari-pinned-tab.svg" color="#5bbad5">
+<meta name="msapplication-TileColor" content="#00aba9">
+<meta name="theme-color" content="#ffffff">
+	<style>
+		* {
+			font-family: Arial, Helvetica, sans-serif;
+		}
+		.head {
+			position: fixed;
+			top: 0;
+			left: 0;
+			right: 0;
+			height: 10vh;
+			background-color: black;
+			animation: head-anim 4s cubic-bezier(0.25, 0.13, 0.87, 0.75);
+		}
+		#logo {
+			padding: 0 3vh;
+			animation: logo-anim 4s cubic-bezier(0.25, 0.13, 0.87, 0.75);
+			height: 10vh;
+			display: inline-flex;
+			background-color: black;
+		}
+		#logo>* {
+			height: 10vh;
+		}
+		@keyframes logo-anim {
+			0%, 75% {
+				transform: scale(4) translateX(calc(12.5vw - 3.7vh)) translateY(70%);
+			}
+			100% {
+				transform: scale(1);
+			}
+		}
+		@keyframes head-anim {
+			0%, 75% {
+				height: 100vh;
+			}
+			100% {
+				height: 10vh;
+			}
+		}
+		.list {
+			margin-top: 10vh;
+			display: flex;
+		}
+		.list>* {
+			border: 2px solid;
+			padding: 1em;
+			margin: 2em auto;
+			width: 200px;
+			color: #a40;
+			box-shadow: 2px 2px 2px #0006;
+		}
+		.list>*>div {
+			text-align: center;
+		}
+		.list>*>div:first-child>div {
+			margin-bottom: 1em;
+			font-style: italic;
+			font-weight: bold;
+		}
+		.list>*>div:first-child>img {
+			width: 50px;
+		}
+		.list>*>div:last-child {
+			font-size: 20pt;
+			margin-top: 0.5em;
+		}
+		.list>*>div:last-child>div>input {
+			border: none;
+			display: inline-block;
+			width: 4ex;
+			font-size: 20pt;
+		}
+		.list>*>div:last-child>div::before {
+			content: "+";
+		}
+		.list>*>div:last-child>div::after {
+			content: "%";
+		}
+		.list>*>div:last-child>div:nth-child(1)>input {
+			background: #f97;
+		}
+		.list>*>div:last-child>div:nth-child(2)>input {
+			background: #4af;
+		}
+		.list>*>div:last-child>div:nth-child(3)>input {
+			background: #999;
+		}
+		.list>*:first-child>div:last-child>div:nth-child(3) {
+			color: transparent;
+		}
+		button {
+			cursor: pointer;
+			background-color: black;
+			color: #a40;
+			border: 1px solid;
+			font-size: 20pt;
+			box-shadow: 2px 2px 2px #0006;
+		}
+	</style>
+</head>
+<body bgcolor="wheat">
+<div class="head"><div id="logo"><img src="logo.png"></div><iframe src="intro.ogg" allow="autoplay" style="display:none"></iframe></div>
+<div class="list">
+	<div id="turretgun"><div><div>Мелкокалиберная<br>турель</div><img src="turrets/turret-gun.png"></div><div>
+		<div title="Бонус к урону турелей (не патронов)"><input type="text" value="0"></div>
+		<div title="Бонус к скорости мелкокалиберных патронов"><input type="text" value="0"></div>
+		<div title="Уже посчитанный урон нужными патронами (например, если при наведении на патроны видим 8+4.8, пишем 12.8)"><input type="text" value="5"></div>
+	</div></div>
+	
+	<div id="turretlaser"><div><div>Лазерная<br>турель</div><img src="turrets/turret-laser.png"></div><div>
+		<div title="Бонус к урону лазерных турелей"><input type="text" value="0"></div>
+		<div title="Бонус к скорости лазерных турелей"><input type="text" value="0"></div>
+	</div></div>
+
+	<div id="turretfire"><div><div>Огнемётная<br>турель</div><img src="turrets/turret-flamethrower.png"></div><div>
+		<div title="Бонус к урону огнемётных турелей"><input type="text" value="0"></div>
+		<div style="display:none;"><input type="text" value="0"></div>
+		<div title="Бонус к урону огнём"><input type="text" value="0"></div>
+	</div></div>
+</div>
+<center><button onclick="calc()">Считать</button></center>
+<script>
+    var accuracy = 10;
+	var turrets = [];
+	turrets["gun"] = {base:{range:18,speed:10},dom:turretgun,efficiency:0,displayname:"мелкокалиберной"};
+	turrets["laser"] = {base:{range:24,speed:1.5,damage:20},dom:turretlaser,efficiency:0,displayname:"лазерной"};
+	turrets["fire"] = {base:{range:24,speed:1,damage:90},dom:turretfire,efficiency:0,displayname:"огнемётной"};
+	function calc() {
+		output = "";
+		turrets["gun"].base.damage = turrets["gun"].dom.children[1].children[2].children[0].value*1;
+		turrets["fire"].base.speed = turrets["fire"].dom.children[1].children[2].children[0].value/100+1;
+		for (var i in turrets) {
+			bonus_damage = (turrets[i].dom.children[1].children[0].children[0].value)/100+1;
+			bonus_speed = (turrets[i].dom.children[1].children[1].children[0].value)/100+1;
+			turrets[i].efficiency = turrets[i].base.range*turrets[i].base.speed*bonus_speed*turrets[i].base.damage*bonus_damage;
+			output += "Эффективность "+turrets[i].displayname+" турели: "+(Math.round(turrets[i].efficiency*accuracy)/accuracy)+"\n"
+		}
+		alert(output);
+	}
+</script>
+</body>
+</html>

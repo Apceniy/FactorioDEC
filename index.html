@@ -155,6 +155,7 @@
 	}
 	function check(e) {
 		var newstr = this.value.replace(/[,]/gim,'.');
+		newstr = newstr.replace(/^([^\.]*\.)|\./g, '$1');
 		newstr = newstr.replace(/[^0-9\.]/gim,'');
 		if (newstr != this.value) this.value = newstr;
 	}

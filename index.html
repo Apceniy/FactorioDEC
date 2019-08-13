@@ -137,6 +137,10 @@
 	turrets["gun"] = {base:{range:18,speed:10},dom:turretgun,efficiency:0,displayname:"мелкокалиберной"};
 	turrets["laser"] = {base:{range:24,speed:1.5,damage:20},dom:turretlaser,efficiency:0,displayname:"лазерной"};
 	turrets["fire"] = {base:{range:24,speed:1,damage:90},dom:turretfire,efficiency:0,displayname:"огнемётной"};
+	var inputs = document.getElementsByTagName('input');
+	for (var i = 0; i < inputs.length; i++) {
+		inputs[i].addEventListener("input",check);
+	}
 	function calc() {
 		output = "";
 		turrets["gun"].base.damage = turrets["gun"].dom.children[1].children[2].children[0].value*1;
@@ -148,6 +152,11 @@
 			output += "Эффективность "+turrets[i].displayname+" турели: "+(Math.round(turrets[i].efficiency*accuracy)/accuracy)+"\n"
 		}
 		alert(output);
+	}
+	function check(e) {
+		var newstr = this.value.replace(/[,]/gim,'.');
+		newstr = newstr.replace(/[^0-9\.]/gim,'');
+		if (newstr != this.value) this.value = newstr;
 	}
 </script>
 </body>
